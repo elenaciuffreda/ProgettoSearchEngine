@@ -1,0 +1,69 @@
+-- Query 1: Cos’è l’influenza?
+SELECT title, ts_rank_cd(documento, plainto_tsquery('influenza')) AS rank
+FROM docs
+WHERE documento @@ plainto_tsquery('influenza')
+ORDER BY rank DESC
+LIMIT 10;
+
+-- Query 2: Quali sono i sintomi del diabete?
+SELECT title, ts_rank_cd(documento, plainto_tsquery('diabete & sintomi')) AS rank
+FROM docs
+WHERE documento @@ plainto_tsquery('diabete & sintomi')
+ORDER BY rank DESC
+LIMIT 10;
+
+-- Query 3: Articoli con il titolo che parla di bronchite
+SELECT title, ts_rank_cd(documento, plainto_tsquery('bronchite')) AS rank
+FROM docs
+WHERE documento @@ plainto_tsquery('bronchite')
+ORDER BY rank DESC
+LIMIT 10;
+
+-- Query 4: Cosa causa l’ipertensione?
+SELECT title, ts_rank_cd(documento, plainto_tsquery('cause & ipertensione')) AS rank
+FROM docs
+WHERE documento @@ plainto_tsquery('cause & ipertensione')
+ORDER BY rank DESC
+LIMIT 10;
+
+-- Query 5: Cure per la bronchite
+SELECT title, ts_rank_cd(documento, plainto_tsquery('cura & bronchite')) AS rank
+FROM docs
+WHERE documento @@ plainto_tsquery('cura & bronchite')
+ORDER BY rank DESC
+LIMIT 10;
+
+-- Query 6: Quali malattie sono trasmesse sessualmente?
+SELECT title, ts_rank_cd(documento, plainto_tsquery('trasmissione & sessuale')) AS rank
+FROM docs
+WHERE documento @@ plainto_tsquery('trasmissione & sessuale')
+ORDER BY rank DESC
+LIMIT 10;
+
+-- Query 7: Sintomi del COVID-19
+SELECT title, ts_rank_cd(documento, plainto_tsquery('sintomi & covid')) AS rank
+FROM docs
+WHERE documento @@ plainto_tsquery('sintomi & covid')
+ORDER BY rank DESC
+LIMIT 10;
+
+-- Query 8: Articoli con 'vaccino' nel titolo
+SELECT title, ts_rank_cd(documento, plainto_tsquery('vaccino')) AS rank
+FROM docs
+WHERE documento @@ plainto_tsquery('vaccino')
+ORDER BY rank DESC
+LIMIT 10;
+
+-- Query 9: Malattie comuni nei bambini
+SELECT title, ts_rank_cd(documento, plainto_tsquery('malattia & bambino')) AS rank
+FROM docs
+WHERE documento @@ plainto_tsquery('malattia & bambino')
+ORDER BY rank DESC
+LIMIT 10;
+
+-- Query 10: Diagnosi precoce del tumore
+SELECT title, ts_rank_cd(documento, plainto_tsquery('diagnosi & precoce & tumore')) AS rank
+FROM docs
+WHERE documento @@ plainto_tsquery('diagnosi & precoce & tumore')
+ORDER BY rank DESC
+LIMIT 10;

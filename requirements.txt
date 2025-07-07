@@ -1,0 +1,22 @@
+# Gestione dataset da Wikipedia
+wikipedia>=1.4.0
+tqdm>=4.67.0
+
+# Parser/serializzazione config
+PyYAML>=6.0
+
+# Motore Whoosh
+Whoosh>=2.7.4
+
+# Driver PostgreSQL (per db_setup.py e main_postgres.py)
+psycopg2-binary>=2.9.10
+
+# Alternativa pure-Python PostgreSQL (usata in popola_db.py)
+pg8000>=1.31.2
+
+# Analisi testo (solo se usi NLTK altrove)
+nltk>=3.9.1
+
+
+# Per installare
+pip install -r requirements.txt

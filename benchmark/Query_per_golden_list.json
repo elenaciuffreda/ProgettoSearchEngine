@@ -1,0 +1,12 @@
+{
+  "Q1": "influenza",
+  "Q2": "diabete AND sintomi",
+  "Q3": "title:bronchite",
+  "Q4": "cause AND ipertensione",
+  "Q5": "cura AND bronchite",
+  "Q6": "\"trasmissione sessuale\"",
+  "Q7": "sintomi AND covid",
+  "Q8": "title:vaccino",
+  "Q9": "malattia AND bambino",
+  "Q10": "diagnosi AND precoce AND tumore"
+}

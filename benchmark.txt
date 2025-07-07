@@ -1,0 +1,70 @@
+DOCUMENTAZIONE DEL BENCHMARK – Progetto Gestione dell’Informazione - MediLens
+
+FASE 1) Definizione delle Query
+Le 10 query di test sono state generate a partire dalle User Information Needs (UIN), 
+quindi tradotte in query tecniche per Whoosh, PostgreSQL e PyLucene.
+
+UIN1: Cos’è l’influenza?
+→ Q1: influenza
+
+UIN2: Quali sono i sintomi del diabete?
+→ Q2: diabete AND sintomi
+
+UIN3: Articoli con il titolo che parla di bronchite
+→ Q3: title\:bronchite
+
+UIN4: Cosa causa l’ipertensione?
+→ Q4: cause AND ipertensione
+
+UIN5: Cure per la bronchite
+→ Q5: cura AND bronchite
+
+UIN6: Quali malattie sono trasmesse sessualmente?
+→ Q6: "trasmissione sessuale"
+
+UIN7: Sintomi del COVID-19
+→ Q7: sintomi AND covid
+
+UIN8: Articoli con 'vaccino' nel titolo
+→ Q8: title\:vaccino
+
+UIN9: Malattie comuni nei bambini
+→ Q9: malattia AND bambino
+
+UIN10: Diagnosi precoce del tumore
+→ Q10: diagnosi AND precoce AND tumore
+
+---
+
+FASE 2) Gold Standard (da definire)
+Nota: La costruzione del Gold Standard non è stata ancora completata e verrà definita manualmente in seguito.
+
+---
+
+FASE 3) Esecuzione delle Query
+Ogni query è stata eseguita su:
+
+* PostgreSQL (usando plainto\_tsquery + ts\_rank\_cd)
+* Whoosh (TF-IDF e Weighted)
+* PyLucene (BM25)
+
+I risultati dei 10 documenti restituiti sono stati salvati in:
+
+```
+bench_postgres  = [[id1,...,id10], ..., [...]]
+bench_whoosh    = [[...], ..., [...]]
+bench_pylucene  = [[...], ..., [...]]
+```
+
+---
+
+FASE 4) Calcolo delle Metriche di Performance (k = 5)
+Per ogni sotto-motore e per ogni query Qi si è calcolato:
+
+* Precision\@5: proporzione di documenti rilevanti nei primi 5 risultati
+* Recall\@5: proporzione di documenti rilevanti recuperati tra i primi 5
+* F1\@5: media armonica di P\@5 e R\@5
+* Average Precision (AP): media delle precisioni ai posizionamenti rilevanti
+
+Infine, la Mean Average Precision (MAP) è stata calcolata come media delle AP sulle 10 query. 
+I valori ottenuti sono stati confrontati e rappresentati tramite grafici per evidenziare differenze di efficacia tra i motori.

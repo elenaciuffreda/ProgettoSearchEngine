@@ -1,0 +1,7 @@
+DATA_DIR: "../data"
+INDEX_DIR: "index"
+RANKING:
+  weights:
+    title: 2.0
+    content: 1.0
+  default: tfidf
