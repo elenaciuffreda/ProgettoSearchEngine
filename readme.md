@@ -1,6 +1,12 @@
 **📚 Progetto Gestione dell’Informazione - MediLens**
+
+
 **Anno Accademico:** 2024/2025
+
+
 **Corso:** Gestione dell’Informazione – Progetto Full-Text Search
+
+
 **Studentessa:** Elena Maria Ciuffreda (Matricola: 119325)
 
 ---
