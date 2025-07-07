@@ -43,13 +43,7 @@ ProgettoSearchEngine/
 │   ├── index.py
 │   └── IRmodel.py
 ├── pylucene_engine/
-│   └── pylucene_IR.py            # Script PyLucene (container)
-├── benchmark/
-│   ├── Query_per_golden_list.json
-│   ├── bench_save.json
-│   ├── benchmark.py
-│   └── average_precision.py
-ProgettoSearchEngine/
+│   └── pylucene_IR.py            
 ├── benchmark/
 │   ├── bench_save.json
 │   ├── benchmark.py
@@ -78,7 +72,7 @@ ProgettoSearchEngine/
 1. **Clonare il repository**
 
    ```bash
-   git clone https://tuo-repo-url.git
+   git clone https://github.com/elenaciuffreda/ProgettoSearchEngine
    cd ProgettoSearchEngine
    ```
 
