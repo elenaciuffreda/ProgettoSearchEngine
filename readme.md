@@ -49,7 +49,16 @@ ProgettoSearchEngine/
 │   ├── bench_save.json
 │   ├── benchmark.py
 │   └── average_precision.py
-└── README.md                     # Questo file
+ProgettoSearchEngine/
+├── benchmark/
+│   ├── bench_save.json
+│   ├── benchmark.py
+│   ├── Precision@5.png
+│   ├── Recall@5.png
+│   ├── F1@5.png
+│   ├── Average_Precision.png
+│   └── Mean_Average_Precision.png
+└── README.md                    
 ```
 
 ---
