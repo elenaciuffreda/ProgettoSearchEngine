@@ -1,7 +1,7 @@
-import psycopg2
+import pg8000
 
 def create_db(cfg):
-    conn = psycopg2.connect(dbname='postgres',
+    conn = pg8000.connect(database='postgres',
                             user=cfg.DB_USER,
                             password=cfg.DB_PASSWORD,
                             host=cfg.IP_ADDRESS,

@@ -1,7 +1,7 @@
 import pg8000    
 import json
 
-# ⚠️ Sostituisci questi dati con quelli reali del tuo PostgreSQL
+# connessione al db 
 conn = pg8000.connect(
     user="postgres",
     password="postgres",
@@ -12,7 +12,7 @@ conn = pg8000.connect(
 
 cur = conn.cursor()
 
-# Carica i dati dal file JSONL
+# carico i dati dal file JSONL
 with open("../data/wiki_med_150.jsonl", "r", encoding="utf-8") as f:
     for line in f:
         doc = json.loads(line)

@@ -1,0 +1,16 @@
+#per verificare che PyLucene funzioni correttamente
+#ho scritto un piccolo script che conta i documenti
+#che contengono sia "influenza" che "diabete"   
+
+python - << 'EOF'
+import json, os
+PATH = '/workspace/data/wiki_med_150.jsonl'
+count = 0
+with open(PATH, 'r', encoding='utf-8') as f:
+    for line in f:
+        doc = json.loads(line)
+        txt = doc.get('text','').lower()
+        if 'influenza' in txt and 'diabete' in txt:
+            count += 1
+print("Documenti con entrambi i termini:", count)
+EOF

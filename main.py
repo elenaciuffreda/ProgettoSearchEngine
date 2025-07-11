@@ -5,19 +5,16 @@ import time
 import shutil
 from tqdm import tqdm
 
-# Import motori di ricerca
-import postgres_engine.main_postgres as Postgres
-import pylucene_engine.pylucene_IR as Pylucene
+
+from postgres_engine.main_postgres import main_postgres as run_postgres_setup
 import whoosh_engine.index as WhooshIndex
 import whoosh_engine.IRmodel as WhooshIR
-
-# Import creazione dataset
 from create_dataset import create as create_dataset
 
-# Path al dataset
-DATA_PATH = "Dataset"
 
-# 1. Download/estrazione dataset
+DATA_PATH = "data"
+
+# download/estrazione dataset
 
 def download_dataset():
     if os.path.isdir(DATA_PATH):
@@ -35,7 +32,7 @@ def download_dataset():
         print("Nessun archivio trovato, avvio creazione dataset...")
         create_dataset()
 
-# 2. Setup e indicizzazione di tutti i motori
+# setup e indicizzazione di tutti i motori
 
 def setup_all():
     print("--- Setup motori di ricerca ---")
@@ -43,16 +40,23 @@ def setup_all():
     os.system('cls' if os.name=='nt' else 'clear')
 
     print("PostgreSQL: creazione tabella e indice...")
-    Postgres.main_postgres()  # setup completo
+    run_postgres_setup() # setup completo
     print("PostgreSQL configurato.")
     time.sleep(1)
     os.system('cls' if os.name=='nt' else 'clear')
 
-    print("PyLucene: indicizzazione...")
-    Pylucene.build_index()
+    print("PyLucene: indicizzazione (via Docker)...")
+    os.system(
+      'docker run --rm '
+      '-v "%cd%:/workspace" '
+      '-w /workspace/pylucene_engine '
+      'coady/pylucene python pylucene_IR.py 1'
+    )
+
+    
     print("PyLucene configurato.")
     time.sleep(1)
-    os.system('cls' if os.name=='nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
 
     print("Whoosh: indicizzazione...")
     WhooshIndex.build_index()
@@ -64,18 +68,23 @@ def setup_all():
     time.sleep(1)
     os.system('cls' if os.name=='nt' else 'clear')
 
-# Funzioni di esecuzione dei motori
+#  esecuzione dei motori
 
 def run_postgres():
     print("Selezionato motore PostgreSQL")
-    Postgres.main_postgres()
+    run_postgres_setup()
 
 
 def run_pylucene():
     print("Selezionato motore PyLucene")
     q = input("Inserisci query: ")
-    for title, score in Pylucene.search(q):
-        print(f"{score:.3f}  {title}")
+    m = input("Ranking - 1 BM25, 2 TF-IDF: ").strip()
+    os.system(
+        f'docker run --rm '
+        f'-v "{os.getcwd()}:/workspace" '
+        f'-w /workspace/pylucene_engine '
+        f'coady/pylucene python pylucene_IR.py 2 "{q}" "{m}"'
+    )
 
 
 def run_whoosh():

@@ -7,7 +7,7 @@
   },
   "DATABASE_SETTINGS": {
     "DB_USER": "postgres",
-    "DB_PASSWORD": "la_tua_password",
+    "DB_PASSWORD": "MediLens25",
     "DB_NAME": "search_medico"
   }
 }
