@@ -1,5 +1,5 @@
-# Gestione dataset da Wikipedia
-wikipedia>=1.4.0
+# Creazione dataset (Wikipedia italiana via Hugging Face, streaming)
+datasets>=2.19.0
 tqdm>=4.67.0
 
 # Parser/serializzazione config
@@ -16,7 +16,3 @@ pg8000>=1.31.2
 
 # Analisi testo (solo se usi NLTK altrove)
 nltk>=3.9.1
-
-
-# Per installare
-pip install -r requirements.txt

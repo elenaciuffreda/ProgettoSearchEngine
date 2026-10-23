@@ -1,78 +1,72 @@
 # create_dataset.py
 """
-Script per creare il dataset medico da Wikipedia in formato JSONL.
+Crea il dataset in formato JSONL a partire da Wikipedia italiana
+(dump wikimedia/wikipedia su Hugging Face, config 20231101.it).
+
 Ogni riga del file di output contiene un documento con campi:
 - title: titolo della pagina Wikipedia
-- text: contenuto completo della pagina
+- text: contenuto della pagina
+
+Lo schema e il nome del file sono gli stessi di prima, quindi gli
+indicizzatori esistenti (PostgreSQL, Whoosh) non vanno modificati.
+
+Il dataset viene letto in streaming: non serve scaricare tutto il dump
+prima, e il file di output cresce man mano.
 
 Requisiti:
-- pip install wikipedia tqdm
+- pip install datasets tqdm
 """
 import os
 import json
 from tqdm import tqdm
-import wikipedia
+from datasets import load_dataset
 
-# Cartella di destinazione
+# Cartella e file di output
 DIR = "data"
-# File di output JSONL
 OUTPUT_FILE = os.path.join(DIR, "wiki_med_dataset.jsonl")
 
-# Lista di argomenti medici da estrarre
-TOPICS = [
-    "Influenza",
-    "Diabete mellito",
-    "Ipertensione arteriosa",
-    "Bronchite",
-    "Vaccinazione",
-    "COVID-19",
-    "Cancro",
-    "Asma bronchiale",
-    "Artrite reumatoide",
-    "Osteoporosi",
-    "Malaria",
-    "Epilessia",
-    "Sclerosi multipla",
-    "Tubercolosi",
-    "Depressione (malattia)",
-    "Malattia di Alzheimer",
-    "Infarto del miocardio",
-    "Epatite C",
-    "Morbo di Parkinson",
-    "Anemia"
-]
+# Numero di documenti desiderato (ordine del milione)
+N_DOCS = 1_000_000
+# Scarta le pagine troppo corte (stub, redirect, pagine di disambiguazione)
+MIN_CHARS = 500
+# Tronca i testi molto lunghi per contenere la dimensione dell'indice (None = nessun limite)
+MAX_CHARS = 20_000
+
+HF_DATASET = "wikimedia/wikipedia"
+HF_CONFIG = "20231101.it"
 
 
-def create():
+def create(n_docs=N_DOCS):
     """
-    scarica pagine Wikipedia divisi per 'TOPICS'
-    e salva come JSONL in data/wiki_med_dataset.jsonl
+    Legge Wikipedia italiana in streaming e salva fino a n_docs documenti
+    come JSONL in data/wiki_med_dataset.jsonl
     """
     os.makedirs(DIR, exist_ok=True)
-    wikipedia.set_lang("it")  # italiano
 
+    stream = load_dataset(HF_DATASET, HF_CONFIG, split="train", streaming=True)
+
+    written = 0
     with open(OUTPUT_FILE, "w", encoding="utf-8") as out:
-        for topic in tqdm(TOPICS, desc="Scaricamento Wikipedia"):  # barra di progresso
-            try:
-                page = wikipedia.page(topic, auto_suggest=False)
-                doc = {
-                    "title": page.title,
-                    "text": page.content
-                }
-                out.write(json.dumps(doc, ensure_ascii=False) + "\n")
-            except wikipedia.exceptions.DisambiguationError as e:
-                # Prendi la prima opzione utile
-                choice = e.options[0]
-                try:
-                    page = wikipedia.page(choice, auto_suggest=False)
-                    doc = {"title": page.title, "text": page.content}
-                    out.write(json.dumps(doc, ensure_ascii=False) + "\n")
-                except Exception:
-                    print(f"Impossibile risolvere disambiguazione per: {topic}")
-            except Exception as ex:
-                print(f"Errore su {topic}: {ex}")
+        with tqdm(total=n_docs, desc="Creazione dataset") as pbar:
+            for row in stream:
+                text = (row.get("text") or "").strip()
+                if len(text) < MIN_CHARS:
+                    continue
+                if MAX_CHARS:
+                    text = text[:MAX_CHARS]
 
-    print(f"Dataset creato con {len(TOPICS)} documenti in {OUTPUT_FILE}")
+                doc = {"title": row["title"], "text": text}
+                out.write(json.dumps(doc, ensure_ascii=False) + "\n")
+
+                written += 1
+                pbar.update(1)
+                if written >= n_docs:
+                    break
+
+    print(f"Dataset creato con {written} documenti in {OUTPUT_FILE}")
+    if written < n_docs:
+        print(f"Attenzione: trovati solo {written} documenti su {n_docs} richiesti. "
+              f"Prova ad abbassare MIN_CHARS.")
 
 
 if __name__ == '__main__':

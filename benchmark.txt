@@ -2,7 +2,7 @@ DOCUMENTAZIONE DEL BENCHMARK – Progetto Gestione dell’Informazione - MediLen
 
 FASE 1) Definizione delle Query
 Le 10 query di test sono state generate a partire dalle User Information Needs (UIN), 
-quindi tradotte in query tecniche per Whoosh, PostgreSQL e PyLucene.
+quindi tradotte in query tecniche per Whoosh e PostgreSQL.
 
 UIN1: Cos’è l’influenza?
 → Q1: influenza
@@ -46,14 +46,12 @@ Ogni query è stata eseguita su:
 
 * PostgreSQL (usando plainto\_tsquery + ts\_rank\_cd)
 * Whoosh (TF-IDF e Weighted)
-* PyLucene (BM25)
 
 I risultati dei 10 documenti restituiti sono stati salvati in:
 
 ```
 bench_postgres  = [[id1,...,id10], ..., [...]]
 bench_whoosh    = [[...], ..., [...]]
-bench_pylucene  = [[...], ..., [...]]
 ```
 
 ---
