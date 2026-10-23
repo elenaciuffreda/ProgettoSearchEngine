@@ -13,11 +13,10 @@
 
 ## 🔎 Descrizione
 
-Questo progetto ha l’obiettivo di implementare e confrontare tre motori di ricerca full-text applicati a un dataset di documenti medici:
+Questo progetto ha l’obiettivo di implementare e confrontare due motori di ricerca full-text applicati a un dataset di documenti medici:
 
 1. **PostgreSQL**: utilizzo di `tsvector`/`tsquery` e ranking con `ts_rank_cd` (BM25-like) o `ts_rank` (TF–IDF).
-2. **PyLucene** (in Docker): configurazione con `ItalianAnalyzer` e ranking BM25 o Classic (TF–IDF).
-3. **Whoosh** (pure Python): `ItalianAnalyzer` con TF–IDF e variante weighted sui campi.
+2. **Whoosh** (pure Python): `ItalianAnalyzer` con TF–IDF e variante weighted sui campi.
 
 Ogni motore supporta query su parole chiave e su campi specifici, restituendo risultati ordinati per pertinenza.
 
@@ -28,7 +27,7 @@ Ogni motore supporta query su parole chiave e su campi specifici, restituendo ri
 ```
 ProgettoSearchEngine/
 ├── data/
-│   └── wiki_med_150.jsonl         # Dataset medico in formato JSONL
+│   └── wiki_med_dataset.jsonl     # Dataset medico in formato JSONL
 ├── create_dataset.py             # Script per scaricare pagine Wikipedia (ITA)
 ├── main.py                       # Entry-point: setup e interfaccia CLI
 ├── postgres_engine/
@@ -42,8 +41,6 @@ ProgettoSearchEngine/
 │   ├── config.yaml
 │   ├── index.py
 │   └── IRmodel.py
-├── pylucene_engine/
-│   └── pylucene_IR.py            
 ├── benchmark/
 │   ├── bench_save.json
 │   ├── benchmark.py
@@ -52,7 +49,7 @@ ProgettoSearchEngine/
 │   ├── F1@5.png
 │   ├── Average_Precision.png
 │   └── Mean_Average_Precision.png
-└── README.md                    
+└── README.md
 ```
 
 ---
@@ -62,7 +59,6 @@ ProgettoSearchEngine/
 * **Python 3.9** (consigliato in virtualenv)
 * **pip**
 * **PostgreSQL** & **pgAdmin** (o accesso via `psql`)
-* **Docker Desktop** (necessario per PyLucene)
 * Connessione Internet (per `create_dataset.py`)
 
 ---
@@ -81,7 +77,7 @@ ProgettoSearchEngine/
    ```
    python -m venv venv
    # Windows (PowerShell/cmd.exe)
-   .\venv\Scripts\activate                                #o \venv\bin\activate
+   .\venv\Scripts\activate
 
    # macOS/Linux
    source venv/bin/activate
@@ -112,16 +108,15 @@ Eseguire lo script principale:
 python main.py
 ```
 
-Verranno create automaticamente le tabelle/indici per PostgreSQL, PyLucene (via Docker) e Whoosh.
+Verranno create automaticamente le tabelle/indici per PostgreSQL e Whoosh.
 
 ### 2. Interfaccia di ricerca
 
 Al termine del setup, verrà mostrato un menu interattivo:
 
 1. Cerca con **PostgreSQL**
-2. Cerca con **PyLucene**
-3. Cerca con **Whoosh**
-4. Esci
+2. Cerca con **Whoosh**
+3. Esci
 
 ---
 
@@ -166,45 +161,6 @@ Al termine del setup, verrà mostrato un menu interattivo:
    ```
    python whoosh_engine/IRmodel.py
    ```
-
----
-
-## 🐳 PyLucene (Docker)
-
-Per semplificare i binding Java su Windows, utilizziamo un container Docker:
-
-1. **Scaricare l’immagine**
-
-   ```
-   docker pull coady/pylucene
-   ```
-
-2. **Avviare il container** (da root del progetto):
-
-   ```
-   docker run -it \
-     --name gestinfo \
-     -v /path/to/ProgettoSearchEngine:/workspace \
-     -w /workspace/pylucene_engine \
-     coady/pylucene bash
-   ```
-
-3. **Dentro il container**:
-
-   * Installare dipendenze Python (solo la prima volta):
-
-     ```
-     pip install pyyaml pg8000 whoosh tqdm wikipedia
-     ```
-   * Eseguire lo script PyLucene:
-
-     ```
-     python pylucene_IR.py
-     ```
-   * Selezionare un’opzione:
-
-     1. Indicizzazione → crea `lucene_index/`
-     2. Ricerca → es. `influenza AND sintomi`
 
 ---
 

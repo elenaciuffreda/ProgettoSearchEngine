@@ -2,7 +2,6 @@
 import os
 import zipfile
 import time
-import shutil
 from tqdm import tqdm
 
 
@@ -13,6 +12,11 @@ from create_dataset import create as create_dataset
 
 
 DATA_PATH = "data"
+
+
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 
 # download/estrazione dataset
 
@@ -32,59 +36,36 @@ def download_dataset():
         print("Nessun archivio trovato, avvio creazione dataset...")
         create_dataset()
 
+
 # setup e indicizzazione di tutti i motori
 
 def setup_all():
     print("--- Setup motori di ricerca ---")
     time.sleep(1)
-    os.system('cls' if os.name=='nt' else 'clear')
+    clear_screen()
 
     print("PostgreSQL: creazione tabella e indice...")
-    run_postgres_setup() # setup completo
+    run_postgres_setup()  # setup completo
     print("PostgreSQL configurato.")
     time.sleep(1)
-    os.system('cls' if os.name=='nt' else 'clear')
-
-    print("PyLucene: indicizzazione (via Docker)...")
-    os.system(
-      'docker run --rm '
-      '-v "%cd%:/workspace" '
-      '-w /workspace/pylucene_engine '
-      'coady/pylucene python pylucene_IR.py 1'
-    )
-
-    
-    print("PyLucene configurato.")
-    time.sleep(1)
-    os.system('cls' if os.name == 'nt' else 'clear')
+    clear_screen()
 
     print("Whoosh: indicizzazione...")
     WhooshIndex.build_index()
     print("Whoosh configurato.")
     time.sleep(1)
-    os.system('cls' if os.name=='nt' else 'clear')
+    clear_screen()
 
     print("Setup completato!")
     time.sleep(1)
-    os.system('cls' if os.name=='nt' else 'clear')
+    clear_screen()
 
-#  esecuzione dei motori
+
+# esecuzione dei motori
 
 def run_postgres():
     print("Selezionato motore PostgreSQL")
     run_postgres_setup()
-
-
-def run_pylucene():
-    print("Selezionato motore PyLucene")
-    q = input("Inserisci query: ")
-    m = input("Ranking - 1 BM25, 2 TF-IDF: ").strip()
-    os.system(
-        f'docker run --rm '
-        f'-v "{os.getcwd()}:/workspace" '
-        f'-w /workspace/pylucene_engine '
-        f'coady/pylucene python pylucene_IR.py 2 "{q}" "{m}"'
-    )
 
 
 def run_whoosh():
@@ -97,21 +78,22 @@ def run_whoosh():
 def exit_program():
     print("Uscita dal programma...")
     time.sleep(1)
-    os.system('cls' if os.name=='nt' else 'clear')
+    clear_screen()
     exit()
+
 
 # Mappatura scelta
 handlers = {
     1: run_postgres,
-    2: run_pylucene,
-    3: run_whoosh,
-    4: exit_program
+    2: run_whoosh,
+    3: exit_program
 }
+
 
 # Main
 
 def main():
-    os.system('cls' if os.name=='nt' else 'clear')
+    clear_screen()
     print("=== Gestione dell'Informazione ===")
     download_dataset()
     setup_all()
@@ -119,14 +101,14 @@ def main():
     while True:
         print("Scegli motore di ricerca:")
         print("  1) PostgreSQL")
-        print("  2) PyLucene")
-        print("  3) Whoosh")
-        print("  4) Esci")
+        print("  2) Whoosh")
+        print("  3) Esci")
         try:
             choice = int(input("> "))
             handlers.get(choice, lambda: print("Scelta non valida."))()
         except ValueError:
             print("Inserisci un numero valido.")
+
 
 if __name__ == '__main__':
     main()
