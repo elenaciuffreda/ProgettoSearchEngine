@@ -5,7 +5,7 @@ import time
 from tqdm import tqdm
 
 
-from postgres_engine.main_postgres import main_postgres as run_postgres_setup
+from postgres_engine.main_postgres import setup_postgres, search_postgres
 import whoosh_engine.index as WhooshIndex
 import whoosh_engine.IRmodel as WhooshIR
 from create_dataset import create as create_dataset
@@ -45,7 +45,7 @@ def setup_all():
     clear_screen()
 
     print("PostgreSQL: creazione tabella e indice...")
-    run_postgres_setup()  # setup completo
+    setup_postgres()  # setup completo (non interattivo)
     print("PostgreSQL configurato.")
     time.sleep(1)
     clear_screen()
@@ -65,7 +65,7 @@ def setup_all():
 
 def run_postgres():
     print("Selezionato motore PostgreSQL")
-    run_postgres_setup()
+    search_postgres()
 
 
 def run_whoosh():

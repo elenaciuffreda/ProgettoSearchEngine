@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MediLens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #F0F4F8;
+  --surface:   #FFFFFF;
+  --navy:      #0F1923;
+  --accent:    #1A6CF6;
+  --accent-lt: #E8F0FE;
+  --muted:     #64748B;
+  --border:    #D1D9E6;
+  --mono:      'JetBrains Mono', monospace;
+  --sans:      'Inter', sans-serif;
+  --radius:    4px;
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--navy);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+header {
+  background: var(--navy);
+  padding: 0 2rem;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.logo {
+  font-size: .95rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: .5px;
+}
+.logo span { color: var(--accent); }
+.header-sub {
+  font-size: .75rem;
+  color: #8899AA;
+  font-family: var(--mono);
+}
+
+/* ── Hero / search area ── */
+.hero {
+  background: var(--navy);
+  padding: 3rem 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.search-wrap {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.search-row {
+  display: flex;
+  gap: .5rem;
+}
+
+#query-input {
+  flex: 1;
+  height: 48px;
+  padding: 0 1rem;
+  font-family: var(--sans);
+  font-size: 1rem;
+  background: #1C2B3A;
+  border: 1.5px solid #2A3F52;
+  border-radius: var(--radius);
+  color: #fff;
+  outline: none;
+  transition: border-color .15s;
+}
+#query-input::placeholder { color: #4A657A; }
+#query-input:focus { border-color: var(--accent); }
+
+#btn-search {
+  height: 48px;
+  padding: 0 1.4rem;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+}
+#btn-search:hover { background: #1558D0; }
+
+/* ── Controlli motore / ranking / limit ── */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.ctrl-group {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.ctrl-group label {
+  font-size: .75rem;
+  color: #8899AA;
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+.pill-group { display: flex; gap: .25rem; }
+.pill {
+  padding: .25rem .7rem;
+  border-radius: 20px;
+  border: 1px solid #2A3F52;
+  background: transparent;
+  color: #8899AA;
+  font-size: .75rem;
+  font-family: var(--mono);
+  cursor: pointer;
+  transition: all .15s;
+}
+.pill:hover  { border-color: var(--accent); color: #fff; }
+.pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+select.ctrl-select {
+  background: #1C2B3A;
+  border: 1px solid #2A3F52;
+  color: #CBD8E8;
+  font-family: var(--mono);
+  font-size: .75rem;
+  padding: .25rem .5rem;
+  border-radius: var(--radius);
+  outline: none;
+  cursor: pointer;
+}
+
+/* ── Query di esempio ── */
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  justify-content: center;
+}
+.example-chip {
+  padding: .2rem .65rem;
+  border-radius: 20px;
+  border: 1px solid #2A3F52;
+  background: transparent;
+  color: #6B8FAF;
+  font-size: .72rem;
+  cursor: pointer;
+  transition: all .15s;
+}
+.example-chip:hover { border-color: #4A6F8F; color: #CBD8E8; }
+
+/* ── Corpo risultati ── */
+main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── Stato iniziale ── */
+.empty-state {
+  text-align: center;
+  padding: 4rem 0;
+  color: var(--muted);
+}
+.empty-state p { font-size: .9rem; }
+
+/* ── Meta riga (tempo, n risultati) ── */
+.meta-bar {
+  display: flex;
+  align-items: baseline;
+  gap: .75rem;
+  margin-bottom: 1.25rem;
+  font-size: .78rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: .6rem;
+}
+.meta-query { color: var(--navy); font-weight: 600; font-family: var(--sans); }
+
+/* ── Lista risultati ── */
+.results-list { list-style: none; }
+
+.result-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: .85rem 0;
+  border-bottom: 1px solid var(--border);
+  animation: fadein .2s ease;
+}
+@keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+
+.result-rank {
+  font-family: var(--mono);
+  font-size: .72rem;
+  color: var(--muted);
+  min-width: 1.5rem;
+  padding-top: .15rem;
+}
+.result-body { flex: 1; min-width: 0; }
+.result-title {
+  font-size: .95rem;
+  font-weight: 500;
+  color: var(--accent);
+  line-height: 1.4;
+  word-break: break-word;
+}
+.result-score {
+  font-family: var(--mono);
+  font-size: .72rem;
+  color: var(--muted);
+  margin-top: .2rem;
+}
+
+/* ── Errore ── */
+.error-box {
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  color: #B91C1C;
+  font-size: .85rem;
+}
+
+/* ── Loader ── */
+.loader {
+  display: flex;
+  gap: .35rem;
+  justify-content: center;
+  padding: 3rem;
+}
+.loader span {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: bounce .8s infinite alternate;
+}
+.loader span:nth-child(2) { animation-delay: .15s; }
+.loader span:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce { from { opacity: .3; transform: scaleY(.6); } to { opacity: 1; transform: scaleY(1); } }
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: .7rem;
+  color: #AAB4BE;
+  font-family: var(--mono);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Medi<span>Lens</span></div>
+  <div class="header-sub">full-text search · Wikipedia IT</div>
+</header>
+
+<div class="hero">
+  <div class="search-wrap">
+    <div class="search-row">
+      <input id="query-input" type="text" placeholder="Cerca tra 1 000 000 di documenti…" autocomplete="off">
+      <button id="btn-search">Cerca</button>
+    </div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <label>motore</label>
+        <div class="pill-group" id="engine-group">
+          <button class="pill active" data-value="postgres">PostgreSQL</button>
+          <button class="pill"        data-value="whoosh">Whoosh</button>
+        </div>
+      </div>
+
+      <div class="ctrl-group" id="ranking-wrap">
+        <label>ranking</label>
+        <div class="pill-group" id="ranking-group">
+          <button class="pill active" data-value="bm25">BM25</button>
+          <button class="pill"        data-value="tfidf">TF-IDF</button>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <label>risultati</label>
+        <select id="limit-select" class="ctrl-select">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="examples">
+      <span style="font-size:.72rem;color:#4A657A;font-family:var(--mono)">es.</span>
+      <button class="example-chip">influenza</button>
+      <button class="example-chip">diabete AND sintomi</button>
+      <button class="example-chip">title:bronchite</button>
+      <button class="example-chip">vaccino</button>
+      <button class="example-chip">sintomi AND covid</button>
+      <button class="example-chip">diagnosi AND precoce AND tumore</button>
+    </div>
+  </div>
+</div>
+
+<main id="results-area">
+  <div class="empty-state">
+    <p>Digita una query per iniziare la ricerca.</p>
+  </div>
+</main>
+
+<footer>MediLens — Gestione dell'Informazione 2024/2025 · Elena Maria Ciuffreda</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const input   = $('query-input');
+const btnSearch = $('btn-search');
+const area    = $('results-area');
+const rankWrap = $('ranking-wrap');
+
+let engine  = 'postgres';
+let ranking = 'bm25';
+
+// ── pill toggle ──────────────────────────────────────────────────────────────
+function bindPills(groupId, onChange) {
+  const group = $(groupId);
+  group.querySelectorAll('.pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      onChange(btn.dataset.value);
+    });
+  });
+}
+
+bindPills('engine-group', v => {
+  engine = v;
+  rankWrap.style.visibility = v === 'postgres' ? 'visible' : 'hidden';
+});
+
+bindPills('ranking-group', v => { ranking = v; });
+
+// ── esempio chips ────────────────────────────────────────────────────────────
+document.querySelectorAll('.example-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    input.value = chip.textContent;
+    doSearch();
+  });
+});
+
+// ── ricerca ──────────────────────────────────────────────────────────────────
+btnSearch.addEventListener('click', doSearch);
+input.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+function doSearch() {
+  const q = input.value.trim();
+  if (!q) return;
+  const limit = $('limit-select').value;
+
+  area.innerHTML = `<div class="loader"><span></span><span></span><span></span></div>`;
+
+  const url = `/search?q=${encodeURIComponent(q)}&engine=${engine}&ranking=${ranking}&limit=${limit}`;
+  fetch(url)
+    .then(r => r.json())
+    .then(render)
+    .catch(err => {
+      area.innerHTML = `<div class="error-box">Errore di rete: ${err.message}</div>`;
+    });
+}
+
+function render(data) {
+  if (data.error) {
+    area.innerHTML = `<div class="error-box">${data.error}</div>`;
+    return;
+  }
+
+  const n = data.results.length;
+  let html = `
+    <div class="meta-bar">
+      <span class="meta-query">${escHtml(data.query)}</span>
+      <span>${n} risultat${n === 1 ? 'o' : 'i'}</span>
+      <span>${data.engine} · ${data.ranking ?? '—'}</span>
+      <span>${data.time_ms} ms</span>
+    </div>`;
+
+  if (n === 0) {
+    html += `<div class="empty-state"><p>Nessun documento trovato per questa query.</p></div>`;
+  } else {
+    html += '<ul class="results-list">';
+    data.results.forEach((r, i) => {
+      html += `
+        <li class="result-item">
+          <div class="result-rank">${i + 1}</div>
+          <div class="result-body">
+            <div class="result-title">${escHtml(r.title)}</div>
+            <div class="result-score">score: ${r.score}</div>
+          </div>
+        </li>`;
+    });
+    html += '</ul>';
+  }
+
+  area.innerHTML = html;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
